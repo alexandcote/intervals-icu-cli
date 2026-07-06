@@ -31,6 +31,13 @@ icu llms          # full command reference as one markdown document
 icu llms --json   # same, structured
 ```
 
+For Claude Code, a ready-made skill ships in [`skills/intervals-icu/`](skills/intervals-icu/SKILL.md) — it teaches the agent the core workflows (reading training data, logging wellness, planning workouts) plus the token-economy and safety rules. Install it with:
+
+```sh
+cp -r skills/intervals-icu ~/.claude/skills/   # personal, all projects
+# or into a project: cp -r skills/intervals-icu <project>/.claude/skills/
+```
+
 Design choices that matter for agents:
 
 - **Compact JSON by default** — pipe-friendly, token-cheap; `--pretty` for humans. Null fields are stripped (`--nulls` keeps them); array elements are never removed, so stream data stays positionally aligned.

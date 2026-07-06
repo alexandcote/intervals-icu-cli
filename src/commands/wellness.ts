@@ -60,12 +60,16 @@ export function wellnessCommand(): Command {
         .command('get')
         .description('Get the wellness record for one day')
         .argument('<date>', 'ISO date or today/yesterday/-1d')
-        .action(async (date: string, _opts: unknown, command: Command) => {
+        .option('--fields <a,b,c>', 'fields to return, e.g. id,ctl,atl,restingHR,hrv')
+        .action(async (date: string, opts: { fields?: string }, command: Command) => {
           const ctx = getContext(command)
-          emit(await ctx.client.request(`/athlete/${ctx.athleteId}/wellness/${resolveDate(date)}`), { pretty: ctx.pretty })
+          emit(await ctx.client.request(`/athlete/${ctx.athleteId}/wellness/${resolveDate(date)}`), {
+            pretty: ctx.pretty,
+            fields: opts.fields,
+          })
         }),
     ),
-    ['icu wellness get today', 'icu wellness get 2026-07-01'],
+    ['icu wellness get today', 'icu wellness get today --fields id,ctl,atl,restingHR,hrv'],
   )
 
   addExamples(
