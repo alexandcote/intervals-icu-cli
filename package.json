@@ -1,0 +1,45 @@
+{
+  "name": "intervals-icu-cli",
+  "version": "0.1.0",
+  "description": "LLM-friendly CLI for the intervals.icu API — activities, wellness, calendar events, workouts and settings as compact JSON",
+  "keywords": [
+    "intervals.icu",
+    "cycling",
+    "running",
+    "training",
+    "cli",
+    "llm",
+    "agent"
+  ],
+  "license": "MIT",
+  "author": "Alexandre Côté",
+  "type": "module",
+  "bin": {
+    "icu": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
+  },
+  "packageManager": "pnpm@10.33.2",
+  "dependencies": {
+    "commander": "^15.0.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
+  }
+}
