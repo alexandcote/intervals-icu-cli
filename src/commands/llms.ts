@@ -53,23 +53,23 @@ function collectLeaves(cmd: Command, prefix: string, out: CommandRef[]): void {
 
 function toMarkdown(refs: CommandRef[], version: string): string {
   const lines: string[] = [
-    '# icu — intervals.icu CLI reference',
+    '# intervals — intervals.icu CLI reference',
     '',
     `Version ${version}. All commands print compact JSON to stdout (add --pretty for indented).`,
     'Null fields are stripped from output to save tokens; add --nulls to keep them.',
     'Errors are JSON on stderr: {"error":{"code","message","hint"}} with exit codes:',
     '1 API/network, 2 usage/invalid input, 3 auth, 4 not found, 5 rate limited.',
     '',
-    'Auth: set INTERVALS_API_KEY (key from https://intervals.icu/settings) or run `icu config set api_key <key>`.',
+    'Auth: set INTERVALS_API_KEY (key from https://intervals.icu/settings) or run `intervals config set api_key <key>`.',
     'Athlete defaults to the key owner; override with --athlete or INTERVALS_ATHLETE_ID.',
-    'Run `icu config verify` first to confirm setup.',
+    'Run `intervals config verify` first to confirm setup.',
     '',
     'Dates accept ISO (2026-07-06), today, yesterday, tomorrow, now, or offsets: -7d, -4w, -3m, -1y, +2d.',
     'Durations accept seconds or 1h30m form. Distances accept meters or km (42.2km).',
     '',
   ]
   for (const ref of refs) {
-    lines.push(`## icu ${ref.command}`)
+    lines.push(`## intervals ${ref.command}`)
     lines.push('')
     lines.push(ref.description)
     if (ref.arguments.length > 0) {
@@ -109,7 +109,7 @@ export function llmsCommand(program: Command): Command {
       const refs: CommandRef[] = []
       collectLeaves(program, '', refs)
       if (opts.json) {
-        emit({ name: 'icu', version: program.version() ?? '', commands: refs })
+        emit({ name: 'intervals', version: program.version() ?? '', commands: refs })
       } else {
         process.stdout.write(toMarkdown(refs, program.version() ?? '') + '\n')
       }

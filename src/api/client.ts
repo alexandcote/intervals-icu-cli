@@ -46,7 +46,7 @@ function toCliError(status: number, bodyText: string, url: string): CliError {
     return new CliError(
       'AUTH_FAILED',
       `intervals.icu rejected the API key: ${message}`,
-      'Check INTERVALS_API_KEY or run: icu config set api_key <key>. Keys: https://intervals.icu/settings',
+      'Check INTERVALS_API_KEY or run: intervals config set api_key <key>. Keys: https://intervals.icu/settings',
       status,
     )
   }

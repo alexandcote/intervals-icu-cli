@@ -12,7 +12,7 @@ export function foldersCommand(): Command {
     addCommonOptions(
       cmd
         .command('list')
-        .description('List folders and plans (summaries; use `icu workouts list` for the workouts inside)')
+        .description('List folders and plans (summaries; use `intervals workouts list` for the workouts inside)')
         .option('--fields <a,b,c>', 'fields to return')
         .option('--full', 'include everything, including nested workout children')
         .action(async (opts: { fields?: string; full?: boolean }, command: Command) => {
@@ -22,7 +22,7 @@ export function foldersCommand(): Command {
           emit(data, { pretty: ctx.pretty, fields })
         }),
     ),
-    ['icu folders list', 'icu folders list --full'],
+    ['intervals folders list', 'intervals folders list --full'],
   )
 
   addExamples(
@@ -42,7 +42,7 @@ export function foldersCommand(): Command {
       const body = buildBody(opts.set, opts.data, { base })
       emit(await ctx.client.request(`/athlete/${ctx.athleteId}/folders`, { method: 'POST', body }), { pretty: ctx.pretty })
     }),
-    ['icu folders create --name "Base season" --type PLAN', 'icu folders create --name "VO2 workouts"'],
+    ['intervals folders create --name "Base season" --type PLAN', 'intervals folders create --name "VO2 workouts"'],
   )
 
   addExamples(
@@ -63,7 +63,7 @@ export function foldersCommand(): Command {
       const body = buildBody(opts.set, opts.data, { base })
       emit(await ctx.client.request(`/athlete/${ctx.athleteId}/folders/${folderId}`, { method: 'PUT', body }), { pretty: ctx.pretty })
     }),
-    ['icu folders update 4321 --name "Build season"'],
+    ['intervals folders update 4321 --name "Build season"'],
   )
 
   addExamples(
@@ -78,7 +78,7 @@ export function foldersCommand(): Command {
           emit(data ?? { ok: true, deleted: Number(folderId) }, { pretty: ctx.pretty })
         }),
     ),
-    ['icu folders delete 4321'],
+    ['intervals folders delete 4321'],
   )
 
   return cmd

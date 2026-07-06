@@ -16,7 +16,7 @@ npx intervals-icu-cli config verify
 
 - **Zero infrastructure** — `npx` and an API key. Nothing to keep running, nothing to reconnect.
 - **Token economy by design** — activity objects have ~174 fields; the CLI trims responses to curated summaries, strips nulls, and pushes field selection to the server. A 20,000-point power stream becomes `--stats` (min/max/avg) or a downsampled curve, never a context-window flood.
-- **Self-describing** — `icu llms` prints the entire command reference as one markdown document; every command has `--help` with real examples. An agent learns the whole surface in one call.
+- **Self-describing** — `intervals llms` prints the entire command reference as one markdown document; every command has `--help` with real examples. An agent learns the whole surface in one call.
 - **Structured failures** — errors are JSON on stderr with a `hint` that says what to do next, plus distinct exit codes. Agents recover instead of guessing.
 
 ## Setup
@@ -26,8 +26,8 @@ npx intervals-icu-cli config verify
 
 ```sh
 export INTERVALS_API_KEY=your-key        # environment variable, or:
-icu config set api_key your-key          # ~/.config/intervals-cli/config.json (chmod 600)
-icu config verify                        # → {"ok":true,"athlete_id":"i12345","name":"..."}
+intervals config set api_key your-key          # ~/.config/intervals-cli/config.json (chmod 600)
+intervals config verify                        # → {"ok":true,"athlete_id":"i12345","name":"..."}
 ```
 
 The athlete defaults to the key's owner. Coaches can target someone else with `--athlete i67890` or `INTERVALS_ATHLETE_ID`. Precedence: flag > env > config file. The `API_KEY`/`ATHLETE_ID` env vars used by intervals-mcp-server also work, so migration is a rename away.
@@ -36,14 +36,14 @@ Install globally for the short binary name, or keep using `npx intervals-icu-cli
 
 ```sh
 npm install -g intervals-icu-cli
-icu activities list --oldest -7d
+intervals activities list --oldest -7d
 ```
 
 ## Using it from an LLM agent
 
 ```sh
-icu llms          # full command reference, one markdown document
-icu llms --json   # same, structured
+intervals llms          # full command reference, one markdown document
+intervals llms --json   # same, structured
 ```
 
 For **Claude Code**, a ready-made skill ships in [`skills/intervals-icu/`](skills/intervals-icu/SKILL.md). It teaches the agent the core workflows — reading training data, logging wellness, planning structured workouts — plus the token-economy rules and destructive-command cautions:
@@ -71,31 +71,31 @@ cp -r skills/intervals-icu .claude/skills/          # or per-project
 
 ```sh
 # Last week's training as compact summaries
-icu activities list --oldest -7d
+intervals activities list --oldest -7d
 
 # Fitness trend: CTL (fitness), ATL (fatigue), HRV over 30 days
-icu wellness list --oldest -30d --fields id,ctl,atl,restingHR,hrv
+intervals wellness list --oldest -30d --fields id,ctl,atl,restingHR,hrv
 
 # One activity, zone times only
-icu activities get i81960531 --fields id,name,icu_zone_times,icu_hr_zone_times
+intervals activities get i81960531 --fields id,name,icu_zone_times,icu_hr_zone_times
 
 # Power + HR summarized instead of 20k raw points
-icu activities streams i81960531 --types watts,heartrate --stats
+intervals activities streams i81960531 --types watts,heartrate --stats
 
 # Best 20-minute power in a ride
-icu activities best-efforts i81960531 --stream watts --duration 20m
+intervals activities best-efforts i81960531 --stream watts --duration 20m
 
 # Log this morning's wellness (scales: 1 = best/none … 4 = worst)
-icu wellness update today --weight 71.5 --resting-hr 48 --hrv 92 --sleep-secs 27000
+intervals wellness update today --weight 71.5 --resting-hr 48 --hrv 92 --sleep-secs 27000
 
 # Plan a structured workout — the server parses the step syntax
-icu events create --start tomorrow --name "VO2 intervals" --type Ride \
+intervals events create --start tomorrow --name "VO2 intervals" --type Ride \
   --description '- 15m 60%
 - 5x 3m 118% / 3m 50%
 - 10m 55%'
 
 # New FTP after a test
-icu sport-settings update Ride --ftp 285
+intervals sport-settings update Ride --ftp 285
 ```
 
 ## Input & output conventions

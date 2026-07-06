@@ -33,7 +33,7 @@ export function readFileConfig(): FileConfig {
     throw new CliError(
       'INVALID_INPUT',
       `Config file at ${path} is not valid JSON`,
-      `Fix or remove it, then run: icu config set api_key <key>`,
+      `Fix or remove it, then run: intervals config set api_key <key>`,
     )
   }
 }
@@ -71,7 +71,7 @@ export function requireApiKey(config: ResolvedConfig): string {
     throw new CliError(
       'AUTH_FAILED',
       'No API key configured',
-      'Set INTERVALS_API_KEY or run: icu config set api_key <key>. Get a key at https://intervals.icu/settings (Developer Settings).',
+      'Set INTERVALS_API_KEY or run: intervals config set api_key <key>. Get a key at https://intervals.icu/settings (Developer Settings).',
     )
   }
   return config.apiKey

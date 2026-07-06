@@ -12,11 +12,11 @@ import { workoutsCommand } from './commands/workouts.js'
 export const VERSION = '0.1.0'
 
 export function buildProgram(): Command {
-  const program = new Command('icu')
+  const program = new Command('intervals')
     .description(
       'CLI for the intervals.icu training platform, designed for LLM agents.\n' +
         'Compact JSON on stdout; JSON errors with hints on stderr.\n' +
-        'Start with: icu config verify. Full reference: icu llms',
+        'Start with: intervals config verify. Full reference: intervals llms',
     )
     .version(VERSION)
     .exitOverride()

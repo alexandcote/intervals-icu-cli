@@ -44,7 +44,7 @@ export function activitiesCommand(): Command {
           emit(data, { pretty: ctx.pretty, fields: selection.client })
         }),
     ),
-    ['icu activities list', 'icu activities list --oldest -7d --limit 10', 'icu activities list --oldest 2026-06-01 --newest 2026-06-30 --fields id,name,type,distance'],
+    ['intervals activities list', 'intervals activities list --oldest -7d --limit 10', 'intervals activities list --oldest 2026-06-01 --newest 2026-06-30 --fields id,name,type,distance'],
   )
 
   addExamples(
@@ -63,7 +63,7 @@ export function activitiesCommand(): Command {
           emit(data, { pretty: ctx.pretty, fields })
         }),
     ),
-    ['icu activities get i81960531', 'icu activities get i81960531 --intervals', 'icu activities get i81960531 --fields id,name,icu_zone_times'],
+    ['intervals activities get i81960531', 'intervals activities get i81960531 --intervals', 'intervals activities get i81960531 --fields id,name,icu_zone_times'],
   )
 
   addExamples(
@@ -80,7 +80,7 @@ export function activitiesCommand(): Command {
           emit(await ctx.client.request(path, { query: { q: query, limit: opts.limit } }), { pretty: ctx.pretty })
         }),
     ),
-    ['icu activities search "sweet spot"', 'icu activities search "#race" --limit 5'],
+    ['intervals activities search "sweet spot"', 'intervals activities search "#race" --limit 5'],
   )
 
   addExamples(
@@ -94,7 +94,7 @@ export function activitiesCommand(): Command {
           emit(await ctx.client.request(`/activity/${id}/intervals`), { pretty: ctx.pretty })
         }),
     ),
-    ['icu activities intervals i81960531'],
+    ['intervals activities intervals i81960531'],
   )
 
   addExamples(
@@ -132,9 +132,9 @@ export function activitiesCommand(): Command {
         ),
     ),
     [
-      'icu activities streams i81960531 --types watts,heartrate --stats',
-      'icu activities streams i81960531 --types time,watts --every 60',
-      'icu activities streams i81960531 --types time,heartrate --points 200',
+      'intervals activities streams i81960531 --types watts,heartrate --stats',
+      'intervals activities streams i81960531 --types time,watts --every 60',
+      'intervals activities streams i81960531 --types time,heartrate --points 200',
     ],
   )
 
@@ -150,7 +150,7 @@ export function activitiesCommand(): Command {
           emit(await ctx.client.request(`/activity/${id}/power-curve`, { query: { fatigue: opts.fatigue } }), { pretty: ctx.pretty })
         }),
     ),
-    ['icu activities power-curve i81960531'],
+    ['intervals activities power-curve i81960531'],
   )
 
   addExamples(
@@ -165,7 +165,7 @@ export function activitiesCommand(): Command {
           emit(await ctx.client.request(`/activity/${id}/pace-curve`, { query: { gap: opts.gap } }), { pretty: ctx.pretty })
         }),
     ),
-    ['icu activities pace-curve i81960531 --gap'],
+    ['intervals activities pace-curve i81960531 --gap'],
   )
 
   addExamples(
@@ -179,7 +179,7 @@ export function activitiesCommand(): Command {
           emit(await ctx.client.request(`/activity/${id}/hr-curve`), { pretty: ctx.pretty })
         }),
     ),
-    ['icu activities hr-curve i81960531'],
+    ['intervals activities hr-curve i81960531'],
   )
 
   addExamples(
@@ -217,7 +217,7 @@ export function activitiesCommand(): Command {
           },
         ),
     ),
-    ['icu activities best-efforts i81960531 --stream watts --duration 20m', 'icu activities best-efforts i81960531 --stream velocity_smooth --distance 5km --count 3'],
+    ['intervals activities best-efforts i81960531 --stream watts --duration 20m', 'intervals activities best-efforts i81960531 --stream velocity_smooth --distance 5km --count 3'],
   )
 
   addExamples(
@@ -242,7 +242,7 @@ export function activitiesCommand(): Command {
           }),
       ),
     ),
-    ['icu activities update i81960531 --name "Morning intervals"', 'icu activities update i81960531 --set feel=3 --set perceived_exertion=7'],
+    ['intervals activities update i81960531 --name "Morning intervals"', 'intervals activities update i81960531 --set feel=3 --set perceived_exertion=7'],
   )
 
   return cmd

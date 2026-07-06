@@ -35,7 +35,7 @@ export function sportSettingsCommand(): Command {
           emit(await ctx.client.request(`/athlete/${ctx.athleteId}/sport-settings`), { pretty: ctx.pretty, fields: opts.fields })
         }),
     ),
-    ['icu sport-settings list', 'icu sport-settings list --fields id,types,ftp,lthr'],
+    ['intervals sport-settings list', 'intervals sport-settings list --fields id,types,ftp,lthr'],
   )
 
   addExamples(
@@ -49,7 +49,7 @@ export function sportSettingsCommand(): Command {
           emit(await ctx.client.request(`/athlete/${ctx.athleteId}/sport-settings/${idOrType}`), { pretty: ctx.pretty })
         }),
     ),
-    ['icu sport-settings get Ride', 'icu sport-settings get Run'],
+    ['intervals sport-settings get Ride', 'intervals sport-settings get Run'],
   )
 
   addExamples(
@@ -86,7 +86,7 @@ export function sportSettingsCommand(): Command {
         { pretty: ctx.pretty },
       )
     }),
-    ['icu sport-settings update Ride --ftp 285', 'icu sport-settings update Run --lthr 168 --recalc-hr-zones'],
+    ['intervals sport-settings update Ride --ftp 285', 'intervals sport-settings update Run --lthr 168 --recalc-hr-zones'],
   )
 
   return cmd

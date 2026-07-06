@@ -56,7 +56,7 @@ export function workoutsCommand(): Command {
           emit(data, { pretty: ctx.pretty, fields, limit: opts.limit })
         }),
     ),
-    ['icu workouts list', 'icu workouts list --fields id,name --limit 50'],
+    ['intervals workouts list', 'intervals workouts list --fields id,name --limit 50'],
   )
 
   addExamples(
@@ -70,7 +70,7 @@ export function workoutsCommand(): Command {
           emit(await ctx.client.request(`/athlete/${ctx.athleteId}/workouts/${workoutId}`), { pretty: ctx.pretty })
         }),
     ),
-    ['icu workouts get 98765'],
+    ['intervals workouts get 98765'],
   )
 
   addExamples(
@@ -79,7 +79,7 @@ export function workoutsCommand(): Command {
         cmd
           .command('create')
           .description('Create a workout in a folder or plan. Steps go in --description (workout syntax) or --file (.zwo/.mrc/.erg/.fit)')
-          .requiredOption('--folder-id <id>', 'destination folder or plan id (see: icu folders list)', positiveInt)
+          .requiredOption('--folder-id <id>', 'destination folder or plan id (see: intervals folders list)', positiveInt)
           .requiredOption('--name <name>', 'workout name')
           .option('--type <type>', 'activity type: Ride, Run, Swim, ... (default Ride)', 'Ride')
           .option('--description <text>', 'workout steps in intervals.icu workout syntax')
@@ -92,8 +92,8 @@ export function workoutsCommand(): Command {
       emit(await ctx.client.request(`/athlete/${ctx.athleteId}/workouts`, { method: 'POST', body }), { pretty: ctx.pretty })
     }),
     [
-      `icu workouts create --folder-id 4321 --name "2x20 sweet spot" --type Ride --description '- 15m 55%\\n- 2x 20m 90% / 5m 50%\\n- 10m 50%'`,
-      'icu workouts create --folder-id 4321 --name "Zwift crit" --file crit.zwo',
+      `intervals workouts create --folder-id 4321 --name "2x20 sweet spot" --type Ride --description '- 15m 55%\\n- 2x 20m 90% / 5m 50%\\n- 10m 50%'`,
+      'intervals workouts create --folder-id 4321 --name "Zwift crit" --file crit.zwo',
     ],
   )
 
@@ -115,7 +115,7 @@ export function workoutsCommand(): Command {
       const body = buildBody(opts.set, opts.data, { base: workoutBase(opts) })
       emit(await ctx.client.request(`/athlete/${ctx.athleteId}/workouts/${workoutId}`, { method: 'PUT', body }), { pretty: ctx.pretty })
     }),
-    ['icu workouts update 98765 --name "2x25 sweet spot"'],
+    ['intervals workouts update 98765 --name "2x25 sweet spot"'],
   )
 
   addExamples(
@@ -134,7 +134,7 @@ export function workoutsCommand(): Command {
           emit(data ?? { ok: true, deleted: Number(workoutId) }, { pretty: ctx.pretty })
         }),
     ),
-    ['icu workouts delete 98765'],
+    ['intervals workouts delete 98765'],
   )
 
   return cmd

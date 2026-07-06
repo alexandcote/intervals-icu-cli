@@ -103,7 +103,7 @@ export function eventsCommand(): Command {
           emit(data, { pretty: ctx.pretty, fields: opts.fields })
         }),
     ),
-    ['icu events list', 'icu events list --oldest today --newest +14d --category WORKOUT', 'icu events list --oldest -7d --newest today --fields id,start_date_local,category,name'],
+    ['intervals events list', 'intervals events list --oldest today --newest +14d --category WORKOUT', 'intervals events list --oldest -7d --newest today --fields id,start_date_local,category,name'],
   )
 
   addExamples(
@@ -117,7 +117,7 @@ export function eventsCommand(): Command {
           emit(await ctx.client.request(`/athlete/${ctx.athleteId}/events/${eventId}`), { pretty: ctx.pretty })
         }),
     ),
-    ['icu events get 123456'],
+    ['intervals events get 123456'],
   )
 
   const create = addBodyOptions(
@@ -145,9 +145,9 @@ export function eventsCommand(): Command {
   })
   create.addHelpText('after', WORKOUT_SYNTAX_HELP)
   addExamples(create, [
-    'icu events create --start tomorrow --name "Endurance ride" --type Ride --time-target 2h --load-target 120',
-    `icu events create --start 2026-07-10 --name "VO2 intervals" --type Ride --description '- 15m 60%\\n- 5x 3m 118% / 3m 50%\\n- 10m 55%'`,
-    'icu events create --start today --category NOTE --name "Travel day"',
+    'intervals events create --start tomorrow --name "Endurance ride" --type Ride --time-target 2h --load-target 120',
+    `intervals events create --start 2026-07-10 --name "VO2 intervals" --type Ride --description '- 15m 60%\\n- 5x 3m 118% / 3m 50%\\n- 10m 55%'`,
+    'intervals events create --start today --category NOTE --name "Travel day"',
   ])
 
   addExamples(
@@ -167,7 +167,7 @@ export function eventsCommand(): Command {
       const body = buildBody(opts.set, opts.data, { base: eventBase(opts), knownFields: EVENT_FIELDS })
       emit(await ctx.client.request(`/athlete/${ctx.athleteId}/events/${eventId}`, { method: 'PUT', body }), { pretty: ctx.pretty })
     }),
-    ['icu events update 123456 --start +2d', 'icu events update 123456 --description "- 60m Z2"'],
+    ['intervals events update 123456 --start +2d', 'intervals events update 123456 --description "- 60m Z2"'],
   )
 
   addExamples(
@@ -187,7 +187,7 @@ export function eventsCommand(): Command {
           emit(data ?? { ok: true, deleted: Number(eventId) }, { pretty: ctx.pretty })
         }),
     ),
-    ['icu events delete 123456'],
+    ['intervals events delete 123456'],
   )
 
   addExamples(
@@ -213,7 +213,7 @@ export function eventsCommand(): Command {
           emit(data ?? { ok: true }, { pretty: ctx.pretty })
         }),
     ),
-    ['icu events delete-range --oldest today --newest +7d --category WORKOUT'],
+    ['intervals events delete-range --oldest today --newest +7d --category WORKOUT'],
   )
 
   return cmd

@@ -11,7 +11,7 @@ function jsonResponse(body: unknown): Response {
 
 async function run(...argv: string[]): Promise<void> {
   const program = buildProgram()
-  await program.parseAsync(['node', 'icu', ...argv, '--api-key', 'k', '--athlete', 'i1'])
+  await program.parseAsync(['node', 'intervals', ...argv, '--api-key', 'k', '--athlete', 'i1'])
 }
 
 function calledUrl(index = 0): URL {
@@ -132,12 +132,12 @@ describe('llms', () => {
       return true
     }) as typeof process.stdout.write
     try {
-      await program.parseAsync(['node', 'icu', 'llms'])
+      await program.parseAsync(['node', 'intervals', 'llms'])
     } finally {
       process.stdout.write = write
     }
-    expect(captured).toContain('## icu activities list')
-    expect(captured).toContain('## icu events create')
-    expect(captured).toContain('icu config verify')
+    expect(captured).toContain('## intervals activities list')
+    expect(captured).toContain('## intervals events create')
+    expect(captured).toContain('intervals config verify')
   })
 })

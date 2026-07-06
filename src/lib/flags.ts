@@ -22,7 +22,7 @@ export function numeric(value: string): number {
 
 /**
  * Register the flags shared by every leaf command. Registered per-leaf (not
- * only on the root) so `icu activities list --pretty` works — LLMs append
+ * only on the root) so `intervals activities list --pretty` works — LLMs append
  * flags at the end of the line.
  */
 export function addCommonOptions(cmd: Command): Command {
@@ -52,7 +52,7 @@ export interface BodyFlags {
   data?: string
 }
 
-const EXAMPLES = Symbol.for('icu.examples')
+const EXAMPLES = Symbol.for('intervals.examples')
 
 /** Attach examples to --help and stash them for the `llms` reference command. */
 export function addExamples(cmd: Command, examples: string[]): Command {

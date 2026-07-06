@@ -15,7 +15,7 @@
   "author": "Alexandre Côté",
   "type": "module",
   "bin": {
-    "icu": "dist/index.js"
+    "intervals": "dist/index.js"
   },
   "files": [
     "dist"

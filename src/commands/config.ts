@@ -41,7 +41,7 @@ export function configCommand(): Command {
           emit({ ok: true, [k]: k === 'api_key' ? redact(value) : value })
         }),
     ),
-    ['icu config set api_key abc123xyz', 'icu config set athlete_id i12345'],
+    ['intervals config set api_key abc123xyz', 'intervals config set athlete_id i12345'],
   )
 
   addExamples(
@@ -56,7 +56,7 @@ export function configCommand(): Command {
           emit({ [k]: k === 'api_key' ? redact(config[k]) : (config[k] ?? null) })
         }),
     ),
-    ['icu config get athlete_id'],
+    ['intervals config get athlete_id'],
   )
 
   addExamples(
@@ -69,7 +69,7 @@ export function configCommand(): Command {
           emit({ ...config, api_key: redact(config.api_key) ?? null, path: configPath() })
         }),
     ),
-    ['icu config list'],
+    ['intervals config list'],
   )
 
   addExamples(
@@ -86,14 +86,14 @@ export function configCommand(): Command {
           emit({ ok: true, removed: k })
         }),
     ),
-    ['icu config unset base_url'],
+    ['intervals config unset base_url'],
   )
 
   addExamples(
     addCommonOptions(cmd.command('path').description('Print the config file path').action(() => {
       emit({ path: configPath() })
     })),
-    ['icu config path'],
+    ['intervals config path'],
   )
 
   addExamples(
@@ -115,7 +115,7 @@ export function configCommand(): Command {
           )
         }),
     ),
-    ['icu config verify', 'INTERVALS_API_KEY=abc icu config verify'],
+    ['intervals config verify', 'INTERVALS_API_KEY=abc intervals config verify'],
   )
 
   return cmd

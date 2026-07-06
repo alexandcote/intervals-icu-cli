@@ -51,7 +51,7 @@ export function wellnessCommand(): Command {
           emit(data, { pretty: ctx.pretty, limit: opts.limit, fields: opts.fields?.includes('.') ? opts.fields : undefined })
         }),
     ),
-    ['icu wellness list --oldest -7d', 'icu wellness list --oldest -90d --fields id,weight,restingHR,hrv,sleepSecs'],
+    ['intervals wellness list --oldest -7d', 'intervals wellness list --oldest -90d --fields id,weight,restingHR,hrv,sleepSecs'],
   )
 
   addExamples(
@@ -69,7 +69,7 @@ export function wellnessCommand(): Command {
           })
         }),
     ),
-    ['icu wellness get today', 'icu wellness get today --fields id,ctl,atl,restingHR,hrv'],
+    ['intervals wellness get today', 'intervals wellness get today --fields id,ctl,atl,restingHR,hrv'],
   )
 
   addExamples(
@@ -117,9 +117,9 @@ export function wellnessCommand(): Command {
       ),
     ),
     [
-      'icu wellness update today --weight 71.5 --resting-hr 48 --hrv 92',
-      'icu wellness update yesterday --sleep-secs 27000 --sleep-quality 2',
-      'icu wellness update today --set spO2=97 --set comments="felt strong"',
+      'intervals wellness update today --weight 71.5 --resting-hr 48 --hrv 92',
+      'intervals wellness update yesterday --sleep-secs 27000 --sleep-quality 2',
+      'intervals wellness update today --set spO2=97 --set comments="felt strong"',
     ],
   )
 

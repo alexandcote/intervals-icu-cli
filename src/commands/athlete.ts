@@ -22,7 +22,7 @@ export function athleteCommand(): Command {
           emit(athlete, { pretty: ctx.pretty, fields })
         }),
     ),
-    ['icu athlete get', 'icu athlete get --fields id,name,sportSettings.types,sportSettings.ftp', 'icu athlete get --full'],
+    ['intervals athlete get', 'intervals athlete get --fields id,name,sportSettings.types,sportSettings.ftp', 'intervals athlete get --full'],
   )
 
   addExamples(
@@ -35,7 +35,7 @@ export function athleteCommand(): Command {
           emit(await ctx.client.request(`/athlete/${ctx.athleteId}/profile`), { pretty: ctx.pretty })
         }),
     ),
-    ['icu athlete profile'],
+    ['intervals athlete profile'],
   )
 
   addExamples(
@@ -54,7 +54,7 @@ export function athleteCommand(): Command {
           }),
       ),
     ),
-    ['icu athlete update --set weight=71.5', 'icu athlete update --set icu_resting_hr=48 --set timezone=America/Toronto'],
+    ['intervals athlete update --set weight=71.5', 'intervals athlete update --set icu_resting_hr=48 --set timezone=America/Toronto'],
   )
 
   return cmd
