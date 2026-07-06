@@ -29,6 +29,7 @@ export function addCommonOptions(cmd: Command): Command {
   return cmd
     .option('--athlete <id>', 'athlete id (default "0" = owner of the API key)')
     .option('--pretty', 'pretty-print the JSON output')
+    .option('--nulls', 'keep null fields in the output (stripped by default)')
     .option('--timeout <ms>', 'HTTP timeout in milliseconds (default 30000)', positiveInt)
     .addOption(new Option('--api-key <key>', 'intervals.icu API key (prefer INTERVALS_API_KEY)').hideHelp())
     .addOption(new Option('--base-url <url>', 'API base URL override').hideHelp())

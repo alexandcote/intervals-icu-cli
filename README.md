@@ -33,7 +33,7 @@ icu llms --json   # same, structured
 
 Design choices that matter for agents:
 
-- **Compact JSON by default** — pipe-friendly, token-cheap; `--pretty` for humans.
+- **Compact JSON by default** — pipe-friendly, token-cheap; `--pretty` for humans. Null fields are stripped (`--nulls` keeps them); array elements are never removed, so stream data stays positionally aligned.
 - **Token economy** — list/detail responses are trimmed to a curated field set by default; `--fields a,b,c` (dot paths supported) selects exactly what you need, `--full` returns everything. Stream commands require `--types` and support `--every 60`, `--points 200`, or `--stats` so a 50,000-point ride never floods the context window.
 - **Structured errors** — stderr gets `{"error":{"code","message","hint",...}}`; exit codes: `1` API/network, `2` usage/invalid input, `3` auth, `4` not found, `5` rate limited. The hint always says what to do next.
 - **Forgiving inputs** — dates accept `today`, `yesterday`, `-7d`, `-4w`; durations accept `1h30m`; distances accept `42.2km`. Write commands accept `--set key=value` (auto-coerced, dots nest, `key:=json` for arrays) and `--data '{...}' | @file | @-`, with typo suggestions for unknown fields.

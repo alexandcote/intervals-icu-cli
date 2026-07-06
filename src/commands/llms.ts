@@ -56,6 +56,7 @@ function toMarkdown(refs: CommandRef[], version: string): string {
     '# icu — intervals.icu CLI reference',
     '',
     `Version ${version}. All commands print compact JSON to stdout (add --pretty for indented).`,
+    'Null fields are stripped from output to save tokens; add --nulls to keep them.',
     'Errors are JSON on stderr: {"error":{"code","message","hint"}} with exit codes:',
     '1 API/network, 2 usage/invalid input, 3 auth, 4 not found, 5 rate limited.',
     '',
