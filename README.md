@@ -1,7 +1,7 @@
 # intervals-icu-cli
 
 [![npm](https://img.shields.io/npm/v/intervals-icu-cli)](https://www.npmjs.com/package/intervals-icu-cli)
-[![CI](https://github.com/alexandcote/intervals.cli/actions/workflows/ci.yml/badge.svg)](https://github.com/alexandcote/intervals.cli/actions/workflows/ci.yml)
+[![CI](https://github.com/alexandcote/intervals-icu-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/alexandcote/intervals-icu-cli/actions/workflows/ci.yml)
 [![license](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **LLM-first CLI for the [intervals.icu](https://intervals.icu) API** — training data, wellness and workout planning as compact, token-thrifty JSON.

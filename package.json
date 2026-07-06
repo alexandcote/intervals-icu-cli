@@ -13,6 +13,12 @@
   ],
   "license": "MIT",
   "author": "Alexandre Côté",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexandcote/intervals-icu-cli.git"
+  },
+  "homepage": "https://github.com/alexandcote/intervals-icu-cli#readme",
+  "bugs": "https://github.com/alexandcote/intervals-icu-cli/issues",
   "type": "module",
   "bin": {
     "intervals": "dist/index.js"
