@@ -9,8 +9,32 @@
 Built as a lightweight alternative to running an MCP server: no server process, no transport config — any agent that can run a shell command (Claude Code, Codex, a cron script, you) gets the full intervals.icu API through 40 predictable commands.
 
 ```sh
-npx intervals-icu-cli config verify
+npm install -g intervals-icu-cli
+intervals config verify
 ```
+
+## Install
+
+```sh
+npm install -g intervals-icu-cli    # or: pnpm add -g intervals-icu-cli
+intervals --version
+```
+
+This puts the `intervals` command on your PATH. Prefer zero-install? Every command also works one-off through npx:
+
+```sh
+npx intervals-icu-cli activities list --oldest -7d
+```
+
+From source:
+
+```sh
+git clone https://github.com/alexandcote/intervals-icu-cli && cd intervals-icu-cli
+pnpm install && pnpm build
+npm link                            # symlinks `intervals` to your build
+```
+
+Requires Node.js >= 18.
 
 ## Why a CLI instead of an MCP server?
 
@@ -31,13 +55,6 @@ intervals config verify                        # → {"ok":true,"athlete_id":"i1
 ```
 
 The athlete defaults to the key's owner. Coaches can target someone else with `--athlete i67890` or `INTERVALS_ATHLETE_ID`. Precedence: flag > env > config file. The `API_KEY`/`ATHLETE_ID` env vars used by intervals-mcp-server also work, so migration is a rename away.
-
-Install globally for the short binary name, or keep using `npx intervals-icu-cli`:
-
-```sh
-npm install -g intervals-icu-cli
-intervals activities list --oldest -7d
-```
 
 ## Using it from an LLM agent
 
