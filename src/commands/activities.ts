@@ -8,6 +8,45 @@ import { downsampleEvery, downsamplePoints, streamStats, type Stream } from '../
 import { addBodyOptions, addCommonOptions, addExamples, positiveInt, numeric, type BodyFlags } from '../lib/flags.js'
 import { CliError } from '../lib/errors.js'
 
+/** Phenotype-relevant durations (s): neuromuscular → anaerobic → VO2 → threshold → aerobic. */
+const DEFAULT_PROFILE_SECS = [5, 15, 30, 60, 120, 300, 600, 1200, 1800, 3600]
+
+interface ActivityCurve {
+  id?: string
+  start_date_local?: string
+  weight?: number
+  watts?: number[]
+}
+
+interface PowerProfilePoint {
+  secs: number
+  watts: number
+  w_kg: number | null
+  from: { id?: string; date?: string } | null
+}
+
+/** Reduce per-activity curves to the mean-maximal envelope: best watts at each duration + its source. */
+function powerProfileEnvelope(secs: number[], curves: ActivityCurve[]): PowerProfilePoint[] {
+  return secs.map((duration, i) => {
+    let best = -Infinity
+    let source: ActivityCurve | undefined
+    for (const curve of curves) {
+      const w = curve.watts?.[i]
+      if (typeof w === 'number' && w > best) {
+        best = w
+        source = curve
+      }
+    }
+    if (source === undefined) return { secs: duration, watts: 0, w_kg: null, from: null }
+    return {
+      secs: duration,
+      watts: best,
+      w_kg: source.weight ? Number((best / source.weight).toFixed(2)) : null,
+      from: { id: source.id, date: source.start_date_local },
+    }
+  })
+}
+
 /** Server-side `fields` only understands top-level names; dot paths trim client-side. */
 function splitFieldSelection(fields: string | undefined): { server?: string[]; client?: string } {
   if (!fields) return {}
@@ -218,6 +257,61 @@ export function activitiesCommand(): Command {
         ),
     ),
     ['intervals activities best-efforts i81960531 --stream watts --duration 20m', 'intervals activities best-efforts i81960531 --stream velocity_smooth --distance 5km --count 3'],
+  )
+
+  addExamples(
+    addCommonOptions(
+      cmd
+        .command('power-profile')
+        .description(
+          'Mean-maximal power curve across a date range: best watts at each duration and the ride that set it. ' +
+            'The athlete-level phenotype/limiter tool (sprinter vs TT vs all-rounder). ' +
+            DATE_HELP,
+        )
+        .option('--oldest <date>', 'start of range (default -42d)', '-42d')
+        .option('--newest <date>', 'end of range (default today)')
+        .option('--type <sport>', 'sport to analyze: Ride, Run, ... (default Ride)', 'Ride')
+        .option('--secs <a,b,c>', 'durations in seconds (default ' + DEFAULT_PROFILE_SECS.join(',') + ')')
+        .addOption(new Option('--fatigue <kind>', 'use a fatigued (durability) curve').choices(['kj0', 'kj1']))
+        .option('--curves', 'also include each contributing activity curve (larger output)')
+        .action(
+          async (
+            opts: { oldest: string; newest?: string; type: string; secs?: string; fatigue?: string; curves?: boolean },
+            command: Command,
+          ) => {
+            const ctx = getContext(command)
+            const athleteId = await ctx.resolveAthleteId() // this endpoint rejects the "0" alias
+            const secs = opts.secs ? opts.secs.split(',').map((s) => positiveInt(s.trim())) : DEFAULT_PROFILE_SECS
+            const data = await ctx.client.request<{ secs?: number[]; curves?: ActivityCurve[] }>(
+              `/athlete/${athleteId}/activity-power-curves`,
+              {
+                query: {
+                  oldest: resolveDate(opts.oldest),
+                  newest: opts.newest ? resolveDate(opts.newest) : resolveDate('today'),
+                  type: opts.type,
+                  secs: secs.map(String),
+                  fatigue: opts.fatigue,
+                },
+              },
+            )
+            const curves = data.curves ?? []
+            const out: Record<string, unknown> = {
+              oldest: resolveDate(opts.oldest),
+              newest: opts.newest ? resolveDate(opts.newest) : resolveDate('today'),
+              type: opts.type,
+              activities: curves.length,
+              profile: powerProfileEnvelope(data.secs ?? secs, curves),
+            }
+            if (opts.curves) out.curves = curves
+            emit(out, { pretty: ctx.pretty })
+          },
+        ),
+    ),
+    [
+      'intervals activities power-profile --oldest -42d',
+      'intervals activities power-profile --oldest -90d --type Run --secs 60,300,1200,3600',
+      'intervals activities power-profile --oldest -42d --fatigue kj1   # durability: power after 1000+ kJ',
+    ],
   )
 
   addExamples(

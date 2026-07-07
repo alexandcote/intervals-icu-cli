@@ -62,6 +62,26 @@ describe('activities', () => {
     await run('activities', 'streams', 'i9', '--types', 'watts', '--stats')
     expect(JSON.parse(stdout[0]!)).toEqual([{ type: 'watts', count: 2, min: 100, max: 200, avg: 150 }])
   })
+
+  it('power-profile computes the mean-maximal envelope with sources', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        secs: [5, 300],
+        curves: [
+          { id: 'iA', start_date_local: '2026-06-01T10:00:00', weight: 80, watts: [900, 300] },
+          { id: 'iB', start_date_local: '2026-06-10T10:00:00', weight: 80, watts: [1000, 280] },
+        ],
+      }),
+    )
+    await run('activities', 'power-profile', '--oldest', '2026-05-25', '--newest', '2026-07-06', '--secs', '5,300')
+    const url = calledUrl()
+    expect(url.pathname).toBe('/api/v1/athlete/i1/activity-power-curves')
+    expect(url.searchParams.get('secs')).toBe('5,300')
+    const out = JSON.parse(stdout[0]!) as { activities: number; profile: Array<Record<string, unknown>> }
+    expect(out.activities).toBe(2)
+    expect(out.profile[0]).toEqual({ secs: 5, watts: 1000, w_kg: 12.5, from: { id: 'iB', date: '2026-06-10T10:00:00' } })
+    expect(out.profile[1]).toMatchObject({ secs: 300, watts: 300, from: { id: 'iA' } })
+  })
 })
 
 describe('wellness', () => {
