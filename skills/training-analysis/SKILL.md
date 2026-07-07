@@ -87,14 +87,20 @@ Only after diagnosis. Prescribe to the limiter, respect readiness, use evidence-
 - **Durability**: long rides >90min, some with intensity late, in-ride carbs (~60g/h); heavy strength.
 - **Base**: mostly Z1 (pyramidal), keep Z2 <10–15%.
 
-Then write it to the calendar with the CLI (confirm dates/scope with the user first):
+Then write it to the calendar with the CLI (confirm dates/scope with the user first). **Repeats must be a labelled `Nx` header** — see the intervals-icu skill's workout-syntax section; a `/`-separated or bare-`Nx` form silently collapses to one rep:
 
 ```sh
 intervals events create --start tomorrow --name "VO2 4x4" --type Ride \
-  --description '- 15m 60%
-- 4x 4m 94% / 3m 50%
+  --description 'Warmup
+- 15m 60%
+
+Intervals 4x
+- 4m 94%
+- 3m 50%
+
+Cooldown
 - 10m 55%'
-intervals events list --oldest today --newest +14d --category WORKOUT   # verify
+intervals events list --oldest today --newest +14d --category WORKOUT   # verify moving_time/load are non-zero
 ```
 
 ## Guardrails

@@ -66,21 +66,41 @@ intervals wellness update today --set spO2=97 --set comments="legs heavy"
 
 ## Planning workouts on the calendar
 
-Events default to `--category WORKOUT`. Structured steps go in `--description` using intervals.icu workout syntax — the server parses it into a structured workout (percentages are of FTP for rides; runs can use pace zones like `Z2` or min/km):
+Events default to `--category WORKOUT`. Structured steps go in `--description` using intervals.icu workout syntax — the server parses it into a structured workout (percentages are of FTP for rides; runs can use pace zones like `Z2` or min/km).
+
+**Workout syntax (verified against the API — the repeat rule is the thing everyone gets wrong):**
+- Each step is a `- <duration> <target>` line: `- 15m 65%`, `- 30s 250w`, `- 4m 110%`.
+- **Repeats are a LABELLED header line ending in `Nx`**, then the repeated step lines, with a blank line before/after the block:
 
 ```sh
-intervals events create --start tomorrow --name "VO2 max" --type Ride --description '- 15m 60%
-- 5x 3m 118% / 3m 50%
-- 10m 55%'
+intervals events create --start tomorrow --name "VO2 max" --type Ride --description 'Warmup
+- 15m 60%
 
+Intervals 5x
+- 3m 118%
+- 3m 50%
+
+Cooldown
+- 10m 55%'
+```
+
+- ❌ These all SILENTLY collapse the repeat to a single rep (workout ends up far too short): a bare `5x` with no label, a dashed `- 5x ...`, or a slash form `- 3m 118% / 3m 50%`. Always use `<label> Nx`.
+- Duration: `15m` = minutes (not metres), `30s`, `1h`. Distance: `5km`, `1mi`. Target: `%FTP` (`110%`), watts (`250w`), range (`90-95%`), ramp (`ramp 50-75%`), zone (`Z2`), or `%HR`/`%LTHR`.
+- **Always verify after creating**: the response's `moving_time` and `icu_training_load` must be non-zero and match your intent. A too-short `moving_time` means a repeat didn't expand — fix the header and `events update <id> --description ...`.
+- Don't hand-build `workout_doc` — a step-formatted `description` overwrites it server-side anyway.
+
+Other event ops:
+```sh
 intervals events create --start 2026-07-12 --category RACE_B --name "Club TT"
-intervals events create --start +2d --category NOTE --name "Travel day"
+intervals events create --start +2d --category NOTE --name "Rest day"      # notes/rest
+intervals events create --start tue --type WeightTraining --name "Gym" --description 'Deadlift 4x5
+DB split squat 3x6/leg'                                                     # gym: plain-text exercises, not steps
 intervals events list --oldest today --newest +14d --category WORKOUT
-intervals events update 123456 --start +1d          # move a workout
+intervals events update 123456 --start +1d          # move a workout to another day
 intervals events delete 123456
 ```
 
-Weekly-plan pattern: one `events create` per day, `--tags` to group, then `events list` to confirm. Use `--external-id` + `--upsert-on-uid` if you may need to re-run idempotently.
+Weekly-plan pattern: one `events create` per day (create the whole week, then `events list` to confirm every session's `moving_time`/load looks right). Gym sessions use `--type WeightTraining` with exercises as plain text. Use `--external-id` + `--upsert-on-uid` if you may need to re-run idempotently.
 
 ## Settings and library
 

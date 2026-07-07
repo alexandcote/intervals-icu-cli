@@ -18,14 +18,29 @@ const EVENT_FIELDS = [
 ] as const
 
 const WORKOUT_SYNTAX_HELP = `
-Planned workout steps go in --description using intervals.icu workout syntax, e.g.:
+Planned workout steps go in --description using intervals.icu workout syntax. Each step is
+a "- <duration> <target>" line. Repeats are a LABELLED header line ending in "Nx" followed
+by the repeated step lines; separate sections with a blank line. Example (VO2 4x4):
 
-  - 10m 60%
-  - 4x 4m 105% / 3m 55%
+  Warmup
+  - 15m 60%
+
+  Intervals 4x
+  - 4m 110%
+  - 3m 50%
+
+  Cooldown
   - 10m 55%
 
-Percentages are of FTP for --type Ride; pace/HR workouts can use zones (Z2), bpm or pace.
-The server parses the description into a structured workout automatically.`
+Rules that actually matter (verified against the API):
+  - Repeats MUST be "<label> Nx" on its own line (e.g. "Intervals 4x"). A bare "4x", a
+    dashed "- 4x ...", or a "/"-separated "4m 110% / 3m 50%" all SILENTLY flatten to one rep.
+  - Duration: 15m (minutes, not metres), 30s, 1h. Distance: 5km / 1mi.
+  - Target: % of FTP (110%), watts (250w), range (90-95%), ramp (ramp 50-75%), zone (Z2),
+    or % HR/LTHR for HR workouts.
+  - The server parses --description into the workout. After creating, verify moving_time and
+    load are non-zero and match expectations — a too-short moving_time means a repeat didn't
+    expand. Do NOT hand-build workout_doc; a step-formatted description overwrites it.`
 
 function eventDateTime(input: string): string {
   const resolved = resolveDate(input)
@@ -146,7 +161,7 @@ export function eventsCommand(): Command {
   create.addHelpText('after', WORKOUT_SYNTAX_HELP)
   addExamples(create, [
     'intervals events create --start tomorrow --name "Endurance ride" --type Ride --time-target 2h --load-target 120',
-    `intervals events create --start 2026-07-10 --name "VO2 intervals" --type Ride --description '- 15m 60%\\n- 5x 3m 118% / 3m 50%\\n- 10m 55%'`,
+    `intervals events create --start 2026-07-10 --name "VO2 intervals" --type Ride --description $'Warmup\\n- 15m 60%\\n\\nIntervals 5x\\n- 3m 118%\\n- 3m 50%\\n\\nCooldown\\n- 10m 55%'`,
     'intervals events create --start today --category NOTE --name "Travel day"',
   ])
 

@@ -92,7 +92,7 @@ export function workoutsCommand(): Command {
       emit(await ctx.client.request(`/athlete/${ctx.athleteId}/workouts`, { method: 'POST', body }), { pretty: ctx.pretty })
     }),
     [
-      `intervals workouts create --folder-id 4321 --name "2x20 sweet spot" --type Ride --description '- 15m 55%\\n- 2x 20m 90% / 5m 50%\\n- 10m 50%'`,
+      `intervals workouts create --folder-id 4321 --name "2x20 sweet spot" --type Ride --description $'Warmup\\n- 15m 55%\\n\\nSweet spot 2x\\n- 20m 90%\\n- 5m 50%\\n\\nCooldown\\n- 10m 50%'`,
       'intervals workouts create --folder-id 4321 --name "Zwift crit" --file crit.zwo',
     ],
   )
