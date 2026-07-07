@@ -70,13 +70,15 @@ cp -r skills/intervals-icu ~/.claude/skills/        # personal, all projects
 cp -r skills/intervals-icu .claude/skills/          # or per-project
 ```
 
+A second skill, [`skills/training-analysis/`](skills/training-analysis/SKILL.md), turns that data into an evidence-based diagnosis and plan — rider/runner phenotype, physiological limiters, training-intensity-distribution audit, durability, and readiness/overreaching — grounded in cited 2019–2026 sports-science thresholds (`references/evidence.md`).
+
 ## Commands
 
 | Group | Commands |
 |---|---|
 | `config` | `set` · `get` · `list` · `unset` · `path` · `verify` |
 | `athlete` | `get` · `profile` · `update` |
-| `activities` | `list` · `get` · `search` · `intervals` · `streams` · `power-curve` · `pace-curve` · `hr-curve` · `best-efforts` · `update` |
+| `activities` | `list` · `get` · `search` · `intervals` · `streams` · `power-curve` · `power-profile` · `pace-curve` · `hr-curve` · `best-efforts` · `update` |
 | `wellness` | `list` · `get` · `update` |
 | `events` | `list` · `get` · `create` · `update` · `delete` · `delete-range` |
 | `sport-settings` | `list` · `get` · `update` |
@@ -145,7 +147,7 @@ intervals sport-settings update Ride --ftp 285
 
 ```sh
 pnpm install
-pnpm test         # vitest (62 tests)
+pnpm test         # vitest (63 tests)
 pnpm typecheck    # tsc --noEmit
 pnpm build        # tsup → dist/index.js, single ESM bundle
 node dist/index.js --help
