@@ -1,4 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { mkdtemp, readFile, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 import { buildProgram } from '../src/program.js'
 import { setStdoutWriter } from '../src/lib/output.js'
 
@@ -51,6 +54,55 @@ describe('activities', () => {
     const emitted = JSON.parse(stdout[0]!) as Record<string, unknown>
     expect(emitted).toMatchObject({ id: 'i9', name: 'Ride', average_watts: 200 })
     expect(emitted).not.toHaveProperty('icu_sfuel')
+  })
+
+  it('get --intervals keeps a compact interval breakdown', async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        id: 'i9',
+        interval_summary: ['4x 7m 298w'],
+        icu_intervals: [{ type: 'WORK', start_time: 664, moving_time: 417, average_watts: 298, average_torque: 32 }],
+        icu_groups: [{ id: '417s@298w', count: 4, average_watts: 298, min_torque: 20 }],
+      }),
+    )
+    await run('activities', 'get', 'i9', '--intervals')
+    expect(calledUrl().searchParams.get('intervals')).toBe('true')
+    expect(JSON.parse(stdout[0]!)).toEqual({
+      id: 'i9',
+      interval_summary: ['4x 7m 298w'],
+      icu_intervals: [{ type: 'WORK', start_time: 664, moving_time: 417, average_watts: 298 }],
+      icu_groups: [{ id: '417s@298w', count: 4, average_watts: 298 }],
+    })
+  })
+
+  it('download writes activity + full streams to a file and prints only a manifest', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'intervals-dl-'))
+    try {
+      fetchMock
+        .mockResolvedValueOnce(jsonResponse({ id: 'i9', name: 'Ride', type: 'Ride', icu_ftp: 300, feel: null, icu_intervals: [{ start_index: 0 }] }))
+        .mockResolvedValueOnce(
+          jsonResponse([
+            { type: 'time', data: [0, 1, 5] },
+            { type: 'heartrate', data: [120, null, 130] },
+          ]),
+        )
+      await run('activities', 'download', 'i9', '--out', dir)
+
+      expect(calledUrl(0).pathname).toBe('/api/v1/activity/i9')
+      expect(calledUrl(0).searchParams.get('intervals')).toBe('true')
+      expect(calledUrl(1).pathname).toBe('/api/v1/activity/i9/streams')
+      expect(calledUrl(1).searchParams.get('types')).toBeNull()
+
+      const saved = JSON.parse(await readFile(join(dir, 'i9.json'), 'utf8')) as Record<string, unknown>
+      expect(saved.activity).toEqual({ id: 'i9', name: 'Ride', type: 'Ride', icu_ftp: 300, icu_intervals: [{ start_index: 0 }] })
+      expect(saved.streams).toEqual({ time: [0, 1, 5], heartrate: [120, null, 130] })
+
+      const out = JSON.parse(stdout[0]!) as { files: Array<Record<string, unknown>> }
+      expect(out.files[0]).toMatchObject({ id: 'i9', file: join(dir, 'i9.json'), samples: 3, time_gaps: 1, streams: ['time', 'heartrate'], intervals: 1 })
+      expect(stdout[0]).not.toContain('120')
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
   })
 
   it('streams requires --types', async () => {

@@ -43,7 +43,7 @@ intervals activities intervals <id>
 intervals sport-settings get Ride   # ftp, w_prime, power_zones, lthr, max_hr, threshold_pace
 ```
 
-For deep single-ride work (drift, pacing) pull streams **summarized or downsampled**, never raw: `intervals activities streams <id> --types time,watts,heartrate --stats` or `--every 30`.
+For deep single-ride work (drift, per-rep HR, recovery kinetics, pacing), **compute from the full-resolution data with a script — never eyeball downsampled arrays**: `intervals activities download <id> --out <scratch dir>`, then read the JSON file in Node/Python (see the intervals-icu skill for the file layout and the artifact-handling rules). Downsampled views (`streams --every 30`) are for seeing the shape only.
 
 ### 2. Analyze
 
@@ -51,8 +51,10 @@ Compute the derived metrics the CLI doesn't give directly. Key ones (formulas an
 
 - **Intensity distribution (TID)**: the single most important training audit. `intervals activities list` returns both zone-time fields (verified shapes):
   - `icu_hr_zone_times` — a plain 7-element array of seconds `[hz1..hz7]`.
-  - `icu_zone_times` — a list of `{id, secs}` power-zone objects `Z1..Z7` plus a bonus `SS` (sweet-spot) bucket.
-  Sum across the block and collapse the 7 zones into **3 Seiler zones**: **Z1 = zones 1–2** (below LT1/aerobic threshold), **Z2 = zones 3–4** (between thresholds; add the `SS` bucket for power), **Z3 = zones 5–7** (above LT2). Report % of total time in each. Prefer power zones for cyclists with a meter, HR zones otherwise (they diverge — power TID usually shows more Z2/Z3). Reference: a real 42-day pull came back HR 73/25/2 and power 65/29/6 — pyramidal-leaning but Z2-heavy.
+  - `icu_zone_times` — a list of `{id, secs}` power-zone objects `Z1..Z7` plus an `SS` (sweet-spot) bucket.
+  Sum across the block and collapse the 7 zones into **3 Seiler zones**: **Z1 = zones 1–2** (below LT1/aerobic threshold), **Z2 = zones 3–4** (between thresholds), **Z3 = zones 5–7** (above LT2). Report % of total time in each. Prefer power zones for cyclists with a meter, HR zones otherwise (they diverge — power TID usually shows more Z2/Z3).
+  - **Never add `SS` to any zone.** Sweet-spot time *overlaps* Z3/Z4 — `Z1..Z7` already sum to `moving_time` (verified on 69/69 rides) — so adding it double-counts and inflates Seiler Z2 by ~6–8 points, enough to fake the >35% red flag. Report SS separately if useful.
+  - Reference: a real 42-day pull came back power **71/22/6** (the same data read 65/29/6 with SS wrongly added).
 - **Phenotype**: from `power-profile`, take W/kg at 5s, 1min, 5min, 20min (or 60min). Compare the *shape* to reference profiles, not just absolutes.
 - **Critical Power & W′**: fit `P(t) = W'/t + CP` to the power-profile envelope (use 2–15 min points: e.g. 120s, 300s, 600s, 1200s). CP = aerobic ceiling, W′ = anaerobic battery (kJ). Cross-check against `icu_pm_ftp_watts` / `icu_w_prime` from the activity data.
 - **Durability**: compare fresh vs `--fatigue kj1` power-profile (drop in CP-region power), and track `decoupling` — a rising HR:power ratio within long rides is physiological drift.

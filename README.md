@@ -6,7 +6,7 @@
 
 **LLM-first CLI for the [intervals.icu](https://intervals.icu) API** — training data, wellness and workout planning as compact, token-thrifty JSON.
 
-Built as a lightweight alternative to running an MCP server: no server process, no transport config — any agent that can run a shell command (Claude Code, Codex, a cron script, you) gets the full intervals.icu API through 40 predictable commands.
+Built as a lightweight alternative to running an MCP server: no server process, no transport config — any agent that can run a shell command (Claude Code, Codex, a cron script, you) gets the full intervals.icu API through 42 predictable commands.
 
 ```sh
 npm install -g intervals-icu-cli
@@ -39,7 +39,7 @@ Requires Node.js >= 18.
 ## Why a CLI instead of an MCP server?
 
 - **Zero infrastructure** — `npx` and an API key. Nothing to keep running, nothing to reconnect.
-- **Token economy by design** — activity objects have ~174 fields; the CLI trims responses to curated summaries, strips nulls, and pushes field selection to the server. A 20,000-point power stream becomes `--stats` (min/max/avg) or a downsampled curve, never a context-window flood.
+- **Token economy by design** — activity objects have ~174 fields; the CLI trims responses to curated summaries, strips nulls, and pushes field selection to the server. A 20,000-point power stream becomes `--stats` (min/max/avg) or a downsampled curve, never a context-window flood. When an analysis needs real numbers from streams, `activities download` writes the full-resolution data to a file for the agent to compute over with code — LLMs are unreliable at reading long numeric arrays; scripts aren't.
 - **Self-describing** — `intervals llms` prints the entire command reference as one markdown document; every command has `--help` with real examples. An agent learns the whole surface in one call.
 - **Structured failures** — errors are JSON on stderr with a `hint` that says what to do next, plus distinct exit codes. Agents recover instead of guessing.
 
@@ -78,7 +78,7 @@ A second skill, [`skills/training-analysis/`](skills/training-analysis/SKILL.md)
 |---|---|
 | `config` | `set` · `get` · `list` · `unset` · `path` · `verify` |
 | `athlete` | `get` · `profile` · `update` |
-| `activities` | `list` · `get` · `search` · `intervals` · `streams` · `power-curve` · `power-profile` · `pace-curve` · `hr-curve` · `best-efforts` · `update` |
+| `activities` | `list` · `get` · `search` · `intervals` · `streams` · `download` · `power-curve` · `power-profile` · `pace-curve` · `hr-curve` · `best-efforts` · `update` |
 | `wellness` | `list` · `get` · `update` |
 | `events` | `list` · `get` · `create` · `update` · `delete` · `delete-range` |
 | `sport-settings` | `list` · `get` · `update` |
@@ -101,6 +101,9 @@ intervals activities get i81960531 --fields id,name,icu_zone_times,icu_hr_zone_t
 # Power + HR summarized instead of 20k raw points
 intervals activities streams i81960531 --types watts,heartrate --stats
 
+# Full-resolution data to a file (activity + intervals + every stream), for analysis with code
+intervals activities download i81960531 --out ./data
+
 # Best 20-minute power in a ride
 intervals activities best-efforts i81960531 --stream watts --duration 20m
 
@@ -108,9 +111,16 @@ intervals activities best-efforts i81960531 --stream watts --duration 20m
 intervals wellness update today --weight 71.5 --resting-hr 48 --hrv 92 --sleep-secs 27000
 
 # Plan a structured workout — the server parses the step syntax
+# (repeats need a labelled "<label> Nx" header line; "- 5x ..." or "3m 118% / 3m 50%" silently become 1 rep)
 intervals events create --start tomorrow --name "VO2 intervals" --type Ride \
-  --description '- 15m 60%
-- 5x 3m 118% / 3m 50%
+  --description 'Warmup
+- 15m 60%
+
+Intervals 5x
+- 3m 118%
+- 3m 50%
+
+Cooldown
 - 10m 55%'
 
 # New FTP after a test
@@ -147,7 +157,7 @@ intervals sport-settings update Ride --ftp 285
 
 ```sh
 pnpm install
-pnpm test         # vitest (63 tests)
+pnpm test         # vitest (67 tests)
 pnpm typecheck    # tsc --noEmit
 pnpm build        # tsup → dist/index.js, single ESM bundle
 node dist/index.js --help

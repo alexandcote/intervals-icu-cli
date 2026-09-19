@@ -37,6 +37,39 @@ export function downsamplePoints(streams: Stream[], n: number): Stream[] {
   return pickIndexes(streams, [...new Set(keep)])
 }
 
+/**
+ * Reshape the API's stream list into one column per stream name, for code to index directly.
+ * A stream's secondary array (`data2`) becomes `<name>_2`, except latlng, which splits into lat/lng.
+ */
+export function streamsToColumns(streams: Stream[]): Record<string, unknown[]> {
+  const columns: Record<string, unknown[]> = {}
+  for (const stream of streams) {
+    const name = stream.type ?? stream.name
+    if (typeof name !== 'string' || !Array.isArray(stream.data)) continue
+    const data2 = Array.isArray(stream.data2) ? stream.data2 : undefined
+    if (name === 'latlng' && data2) {
+      columns.lat = stream.data
+      columns.lng = data2
+      continue
+    }
+    columns[name] = stream.data
+    if (data2) columns[`${name}_2`] = data2
+  }
+  return columns
+}
+
+/** Count places where the time column skips ahead by more than one second (pauses, auto-stop). */
+export function countTimeGaps(time: unknown[] | undefined): number {
+  if (!time) return 0
+  let gaps = 0
+  for (let i = 1; i < time.length; i++) {
+    const prev = time[i - 1]
+    const cur = time[i]
+    if (typeof prev === 'number' && typeof cur === 'number' && cur - prev > 1) gaps++
+  }
+  return gaps
+}
+
 /** Replace each stream's data with summary statistics. */
 export function streamStats(streams: Stream[]): Array<Record<string, unknown>> {
   return streams.map((stream) => {

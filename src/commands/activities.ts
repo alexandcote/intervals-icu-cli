@@ -1,10 +1,12 @@
+import { mkdir, writeFile } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import { Command, Option } from 'commander'
-import { getContext } from '../lib/context.js'
-import { emit } from '../lib/output.js'
+import { getContext, type GlobalOptions } from '../lib/context.js'
+import { emit, stripNulls } from '../lib/output.js'
 import { DATE_HELP, parseDistance, parseDuration, resolveDate } from '../lib/dates.js'
 import { DEFAULT_FIELDS } from '../lib/fields.js'
 import { buildBody } from '../lib/body.js'
-import { downsampleEvery, downsamplePoints, streamStats, type Stream } from '../lib/streams.js'
+import { countTimeGaps, downsampleEvery, downsamplePoints, streamStats, streamsToColumns, type Stream } from '../lib/streams.js'
 import { addBodyOptions, addCommonOptions, addExamples, positiveInt, numeric, type BodyFlags } from '../lib/flags.js'
 import { CliError } from '../lib/errors.js'
 
@@ -54,6 +56,16 @@ function splitFieldSelection(fields: string | undefined): { server?: string[]; c
   return { server: fields.split(',').map((f) => f.trim()) }
 }
 
+/** Detail summary fields; with intervals, add a compact view of each interval and repeat group. */
+function defaultActivityDetailFields(intervals?: boolean): string {
+  const fields: string[] = [...DEFAULT_FIELDS.activityDetail]
+  if (intervals) {
+    fields.push(...DEFAULT_FIELDS.activityInterval.map((f) => `icu_intervals.${f}`))
+    fields.push(...DEFAULT_FIELDS.activityIntervalGroup.map((f) => `icu_groups.${f}`))
+  }
+  return fields.join(',')
+}
+
 export function activitiesCommand(): Command {
   const cmd = new Command('activities').description('Recorded activities: list, inspect, analyze curves and streams')
 
@@ -98,7 +110,7 @@ export function activitiesCommand(): Command {
         .action(async (id: string, opts: { intervals?: boolean; fields?: string; full?: boolean }, command: Command) => {
           const ctx = getContext(command)
           const data = await ctx.client.request(`/activity/${id}`, { query: { intervals: opts.intervals } })
-          const fields = opts.full ? undefined : (opts.fields ?? DEFAULT_FIELDS.activityDetail.join(','))
+          const fields = opts.full ? undefined : (opts.fields ?? defaultActivityDetailFields(opts.intervals))
           emit(data, { pretty: ctx.pretty, fields })
         }),
     ),
@@ -174,6 +186,68 @@ export function activitiesCommand(): Command {
       'intervals activities streams i81960531 --types watts,heartrate --stats',
       'intervals activities streams i81960531 --types time,watts --every 60',
       'intervals activities streams i81960531 --types time,heartrate --points 200',
+    ],
+  )
+
+  addExamples(
+    addCommonOptions(
+      cmd
+        .command('download')
+        .description(
+          'Save the complete activity (all fields + intervals) and every full-resolution stream to <out>/<id>.json, ' +
+            'then print a small manifest — not the data. Use this when you need numbers from streams: compute them ' +
+            'with a script over the file instead of reading downsampled arrays.',
+        )
+        .argument('<ids...>', 'one or more activity ids')
+        .option('--out <dir>', 'directory to write into (created if missing)', '.')
+        .action(async (ids: string[], opts: { out: string }, command: Command) => {
+          const ctx = getContext(command)
+          const keepNulls = command.optsWithGlobals<GlobalOptions>().nulls ?? false
+          const dir = resolve(opts.out)
+          try {
+            await mkdir(dir, { recursive: true })
+          } catch (err) {
+            throw new CliError('INVALID_INPUT', `Cannot create ${dir}: ${(err as Error).message}`, 'Pass a writable directory with --out.')
+          }
+          const files: Array<Record<string, unknown>> = []
+          for (const id of ids) {
+            const activity = await ctx.client.request<Record<string, unknown>>(`/activity/${id}`, { query: { intervals: true } })
+            const streams = streamsToColumns((await ctx.client.request<Stream[] | undefined>(`/activity/${id}/streams`)) ?? [])
+            const file = resolve(dir, `${id}.json`)
+            const text = JSON.stringify({
+              id,
+              fetched_at: new Date().toISOString(),
+              activity: keepNulls ? activity : stripNulls(activity),
+              streams,
+            })
+            await writeFile(file, text)
+            files.push({
+              id,
+              file,
+              bytes: Buffer.byteLength(text),
+              name: activity.name,
+              type: activity.type,
+              start_date_local: activity.start_date_local,
+              samples: streams.time?.length ?? 0,
+              time_gaps: countTimeGaps(streams.time),
+              streams: Object.keys(streams),
+              intervals: Array.isArray(activity.icu_intervals) ? activity.icu_intervals.length : 0,
+            })
+          }
+          emit(
+            {
+              files,
+              layout:
+                'streams.<name>[i] is the sample at streams.time[i] seconds from start (all columns aligned; time can skip ahead when time_gaps > 0). ' +
+                'activity.icu_intervals[].start_index (inclusive) / end_index (exclusive) index into those arrays; start_time/end_time are seconds.',
+            },
+            { pretty: ctx.pretty },
+          )
+        }),
+    ),
+    [
+      'intervals activities download i81960531 --out ./data',
+      'intervals activities download i81960531 i81960532   # several activities, one file each',
     ],
   )
 

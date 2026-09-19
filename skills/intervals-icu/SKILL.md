@@ -15,7 +15,7 @@ intervals config verify   # → {"ok":true,"athlete_id":"i256245","name":"..."}
 
 If it fails (exit 3), the key is missing: tell the user to set `INTERVALS_API_KEY` (from https://intervals.icu/settings) or run `intervals config set api_key <key>`. Don't guess — the error's `hint` field says what to do.
 
-For anything not covered here, `intervals llms` prints the full 40-command reference (`intervals <group> <cmd> --help` also has examples).
+For anything not covered here, `intervals llms` prints the full 42-command reference (`intervals <group> <cmd> --help` also has examples).
 
 ## Errors
 
@@ -34,7 +34,17 @@ Responses are pre-trimmed to useful summaries. Escalate only as needed:
 
 1. Lists default to compact field sets and `--limit 30`. Narrow further with `--fields id,name,icu_training_load`.
 2. `--full` returns everything (~174 fields per activity) — only when you truly need an obscure field.
-3. **Never dump raw streams.** `intervals activities streams <id> --types watts --stats` gives min/max/avg per stream. If you need the shape, downsample: `--every 60` (one point per minute) or `--points 200`.
+3. **Never dump raw streams, and never quote numbers read off downsampled ones.** `--every`/`--points` keep one raw sample per bucket (no averaging), so a single sensor glitch becomes a data point. Use them only to see the *shape* (where the efforts are, whether a sensor dropped out). `--stats` gives min/max/avg per stream.
+4. **For any number derived from a stream, download it and compute it with code:**
+
+```sh
+intervals activities download i81960531 --out <scratch dir>   # → <dir>/i81960531.json + small manifest on stdout
+```
+
+The file holds `activity` (all fields, incl. `icu_intervals` with `start_index`/`end_index` into the arrays, `icu_ftp`, `lthr`) and `streams` as aligned columns (`time`, `watts`, `heartrate`, `cadence`, `lat`/`lng`, `hrv`, …) at full resolution. Write a short Node/Python script that reads it and prints only the result table. Script rules that avoid the usual mistakes:
+- Index by `time` when `time_gaps > 0`; compare reps at the **same offsets** (e.g. HR 60 s into each recovery), not over segments of different lengths.
+- Use **medians** or explicit artifact filters — optical/strap HR drops out (reads 50–125 bpm while working hard); a plain mean or a `< 100` filter isn't enough.
+- Sanity-check results against physiology before quoting them.
 
 ## Reading training data
 
@@ -43,6 +53,7 @@ intervals activities list --oldest -7d                          # last week, new
 intervals activities list --oldest -42d --fields id,start_date_local,type,icu_training_load
 intervals activities get i81960531                              # summary incl. zone times
 intervals activities get i81960531 --intervals                  # with interval breakdown
+intervals activities download i81960531 --out ./data           # full data to a file, for computing with code
 intervals activities search "#race"                             # by name or exact #tag
 intervals activities best-efforts i81960531 --stream watts --duration 20m
 intervals activities power-curve i81960531                      # best power vs duration
@@ -110,7 +121,9 @@ intervals sport-settings update Ride --ftp 285             # after an FTP test
 intervals sport-settings update Run --lthr 168 --recalc-hr-zones
 intervals athlete get                                      # profile + all sport settings
 intervals workouts list                                    # reusable workout library
-intervals workouts create --folder-id 4321 --name "2x20 SS" --description '- 2x 20m 90% / 5m 50%'
+intervals workouts create --folder-id 4321 --name "2x20 SS" --description 'Sweet spot 2x
+- 20m 90%
+- 5m 50%'
 ```
 
 ## Cautions

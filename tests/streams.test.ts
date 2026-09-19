@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { downsampleEvery, downsamplePoints, streamStats, type Stream } from '../src/lib/streams.js'
+import { countTimeGaps, downsampleEvery, downsamplePoints, streamStats, streamsToColumns, type Stream } from '../src/lib/streams.js'
 
 const time = { type: 'time', data: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] }
 const watts = { type: 'watts', data: [100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200] }
@@ -45,5 +45,32 @@ describe('streamStats', () => {
     const latlng = { type: 'latlng', data: [[1, 2], [3, 4], null] }
     const [stats] = streamStats([latlng])
     expect(stats).toEqual({ type: 'latlng', count: 3 })
+  })
+})
+
+describe('streamsToColumns', () => {
+  it('maps each stream to a named column, splitting latlng and keeping data2', () => {
+    const columns = streamsToColumns([
+      time,
+      { type: 'latlng', data: [45.1, 45.2], data2: [-72.1, -72.2] },
+      { type: 'heartrate', data: [120, null], data2: null },
+      { type: 'custom', data: [1, 2], data2: [3, 4] },
+    ])
+    expect(columns).toEqual({
+      time: time.data,
+      lat: [45.1, 45.2],
+      lng: [-72.1, -72.2],
+      heartrate: [120, null],
+      custom: [1, 2],
+      custom_2: [3, 4],
+    })
+  })
+})
+
+describe('countTimeGaps', () => {
+  it('counts skips longer than one second', () => {
+    expect(countTimeGaps([0, 1, 2, 10, 11, 40])).toBe(2)
+    expect(countTimeGaps(time.data)).toBe(0)
+    expect(countTimeGaps(undefined)).toBe(0)
   })
 })
