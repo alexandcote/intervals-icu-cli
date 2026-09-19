@@ -9,7 +9,7 @@ import { sportSettingsCommand } from './commands/sport-settings.js'
 import { wellnessCommand } from './commands/wellness.js'
 import { workoutsCommand } from './commands/workouts.js'
 
-export const VERSION = '0.1.0'
+export const VERSION = '0.1.1'
 
 export function buildProgram(): Command {
   const program = new Command('intervals')
