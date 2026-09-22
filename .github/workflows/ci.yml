@@ -24,6 +24,18 @@ jobs:
         run: |
           node dist/index.js --help
           node dist/index.js llms > /dev/null
+      - name: Pack the npm artifact
+        run: pnpm pack --pack-destination "$RUNNER_TEMP/package"
+      - name: Switch to the minimum supported Node.js version
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Smoke test the installed npm artifact on Node.js 18
+        run: |
+          npm install --global "$RUNNER_TEMP"/package/intervals-icu-cli-*.tgz
+          intervals --version
+          intervals --help > /dev/null
+          intervals llms > /dev/null
 
   publish:
     if: startsWith(github.ref, 'refs/tags/v')

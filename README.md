@@ -157,7 +157,7 @@ intervals sport-settings update Ride --ftp 285
 
 ```sh
 pnpm install
-pnpm test         # vitest (67 tests)
+pnpm test         # vitest
 pnpm typecheck    # tsc --noEmit
 pnpm build        # tsup → dist/index.js, single ESM bundle
 node dist/index.js --help
