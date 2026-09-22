@@ -6,12 +6,15 @@ Add a changeset for every user-visible change:
 pnpm changeset
 ```
 
-Before a release, consume pending changesets to update package versions and
-`CHANGELOG.md`:
+After changes reach `main`, the Changesets GitHub Action maintains a release PR
+that consumes pending changesets and updates package versions and `CHANGELOG.md`.
+Merging that release PR publishes the package automatically.
+
+To generate those files locally instead, run:
 
 ```sh
 pnpm version-packages
 ```
 
-Commit the generated release files, merge them, then tag the release using the
-version from `package.json`.
+Commit the generated release files as part of a release PR. Do not create the
+release tag manually; Changesets creates it after publishing.

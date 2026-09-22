@@ -37,6 +37,7 @@
     "test:watch": "vitest",
     "changeset": "changeset",
     "version-packages": "changeset version",
+    "release": "pnpm build && changeset publish",
     "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
   },
   "packageManager": "pnpm@10.33.2",

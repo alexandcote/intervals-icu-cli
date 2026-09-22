@@ -3,7 +3,6 @@ name: CI
 on:
   push:
     branches: [main]
-    tags: ['v*']
   pull_request:
 
 jobs:
@@ -36,23 +35,3 @@ jobs:
           intervals --version
           intervals --help > /dev/null
           intervals llms > /dev/null
-
-  publish:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write # OIDC for npm trusted publishing — no token secret needed
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: pnpm
-          registry-url: https://registry.npmjs.org
-      - run: npm install -g npm@latest # trusted publishing needs npm >= 11.5.1
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm build
-      - run: npm publish --access public
