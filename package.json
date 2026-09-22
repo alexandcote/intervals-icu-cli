@@ -1,6 +1,6 @@
 {
   "name": "intervals-icu-cli",
-  "version": "0.1.2",
+  "version": "0.1.1",
   "description": "LLM-friendly CLI for the intervals.icu API — activities, wellness, calendar events, workouts and settings as compact JSON",
   "keywords": [
     "intervals.icu",
