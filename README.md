@@ -163,7 +163,10 @@ pnpm build        # tsup → dist/index.js, single ESM bundle
 node dist/index.js --help
 ```
 
-Releases: tag `v*` and CI publishes to npm with provenance.
+Add `pnpm changeset` with each user-visible change. After changes merge, the
+Changesets GitHub Action maintains a release PR containing the generated
+version and changelog. Merging that PR publishes to npm with provenance and
+creates the release tag.
 
 ## License
 
