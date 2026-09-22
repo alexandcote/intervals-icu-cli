@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module'
 import { Command } from 'commander'
 import { activitiesCommand } from './commands/activities.js'
 import { athleteCommand } from './commands/athlete.js'
@@ -9,7 +10,14 @@ import { sportSettingsCommand } from './commands/sport-settings.js'
 import { wellnessCommand } from './commands/wellness.js'
 import { workoutsCommand } from './commands/workouts.js'
 
-export const VERSION = '0.1.1'
+interface PackageMetadata {
+  version: string
+}
+
+const packageMetadata = createRequire(import.meta.url)('../package.json') as PackageMetadata
+
+/** Read from package.json so the executable and published package cannot drift. */
+export const VERSION = packageMetadata.version
 
 export function buildProgram(): Command {
   const program = new Command('intervals')

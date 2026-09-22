@@ -1,6 +1,6 @@
 {
   "name": "intervals-icu-cli",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "LLM-friendly CLI for the intervals.icu API — activities, wellness, calendar events, workouts and settings as compact JSON",
   "keywords": [
     "intervals.icu",
@@ -35,10 +35,13 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
     "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build"
   },
   "packageManager": "pnpm@10.33.2",
   "devDependencies": {
+    "@changesets/cli": "^2.31.1",
     "@types/node": "^26.1.0",
     "commander": "^15.0.0",
     "tsup": "^8.5.1",
