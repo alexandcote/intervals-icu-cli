@@ -60,7 +60,7 @@ function toMarkdown(refs: CommandRef[], version: string): string {
     'Errors are JSON on stderr: {"error":{"code","message","hint"}} with exit codes:',
     '1 API/network, 2 usage/invalid input, 3 auth, 4 not found, 5 rate limited.',
     '',
-    'Auth: set INTERVALS_API_KEY (key from https://intervals.icu/settings) or run `intervals config set api_key <key>`.',
+    'Auth: set INTERVALS_API_KEY (key from https://intervals.icu/settings) or run `intervals config set api_key` and enter the key at the hidden prompt.',
     'Athlete defaults to the key owner; override with --athlete or INTERVALS_ATHLETE_ID.',
     'Run `intervals config verify` first to confirm setup.',
     '',

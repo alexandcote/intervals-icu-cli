@@ -13,7 +13,7 @@ Talk to the intervals.icu API with the `intervals` CLI (`npx intervals-icu-cli` 
 intervals config verify   # → {"ok":true,"athlete_id":"i256245","name":"..."}
 ```
 
-If it fails (exit 3), the key is missing: tell the user to set `INTERVALS_API_KEY` (from https://intervals.icu/settings) or run `intervals config set api_key <key>`. Don't guess — the error's `hint` field says what to do.
+If it fails (exit 3), the key is missing: tell the user to set `INTERVALS_API_KEY` (from https://intervals.icu/settings) or run `intervals config set api_key` and enter it at the hidden prompt. Never put the key in the command itself because shell history may retain it. Don't guess — the error's `hint` field says what to do.
 
 For anything not covered here, `intervals llms` prints the full 42-command reference (`intervals <group> <cmd> --help` also has examples).
 
