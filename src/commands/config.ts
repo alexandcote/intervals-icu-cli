@@ -10,7 +10,6 @@ import { CliError } from '../lib/errors.js'
 import { getContext } from '../lib/context.js'
 import { emit } from '../lib/output.js'
 import { addCommonOptions, addExamples } from '../lib/flags.js'
-import { promptSecret, type SecretPrompt } from '../lib/prompt.js'
 
 function assertKey(key: string): ConfigKey {
   if (!(CONFIG_KEYS as readonly string[]).includes(key)) {
@@ -24,7 +23,7 @@ function redact(value: string | undefined): string | undefined {
   return value.length <= 4 ? '****' : '****' + value.slice(-4)
 }
 
-export function configCommand(readApiKey: SecretPrompt = promptSecret): Command {
+export function configCommand(): Command {
   const cmd = new Command('config').description('Manage stored credentials and defaults (file: ' + configPath() + ')')
 
   addExamples(
@@ -33,30 +32,16 @@ export function configCommand(readApiKey: SecretPrompt = promptSecret): Command 
         .command('set')
         .description('Store a value in the config file (keys: api_key, athlete_id, base_url)')
         .argument('<key>', 'one of: ' + CONFIG_KEYS.join(', '))
-        .argument('[value]', 'the value to store (omit for api_key; it will be prompted securely)')
-        .action(async (key: string, suppliedValue: string | undefined) => {
+        .argument('<value>', 'the value to store')
+        .action((key: string, value: string) => {
           const k = assertKey(key)
-          if (k === 'api_key' && suppliedValue !== undefined) {
-            throw new CliError(
-              'INVALID_INPUT',
-              'Do not pass the API key as a command argument because it may be saved in terminal history',
-              'Run `intervals config set api_key`, then enter the key at the hidden prompt.',
-            )
-          }
-          if (k !== 'api_key' && suppliedValue === undefined) {
-            throw new CliError('INVALID_INPUT', `No value provided for "${k}"`, `Run: intervals config set ${k} <value>`)
-          }
-          const value = k === 'api_key' ? (await readApiKey('Intervals.icu API key: ')).trim() : suppliedValue!
-          if (value === '') {
-            throw new CliError('INVALID_INPUT', 'API key cannot be empty', 'Run `intervals config set api_key` and enter a non-empty key.')
-          }
           const config = readFileConfig()
           config[k] = value
           writeFileConfig(config)
           emit({ ok: true, [k]: k === 'api_key' ? redact(value) : value })
         }),
     ),
-    ['intervals config set api_key', 'intervals config set athlete_id i12345'],
+    ['intervals config set api_key abc123xyz', 'intervals config set athlete_id i12345'],
   )
 
   addExamples(

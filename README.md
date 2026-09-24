@@ -49,9 +49,9 @@ Requires Node.js >= 18.
 2. Provide it either way:
 
 ```sh
-export INTERVALS_API_KEY=your-key  # environment variable, or:
-intervals config set api_key       # hidden prompt; stored in ~/.config/intervals-cli/config.json (chmod 600)
-intervals config verify            # → {"ok":true,"athlete_id":"i12345","name":"..."}
+export INTERVALS_API_KEY=your-key        # environment variable, or:
+intervals config set api_key your-key          # ~/.config/intervals-cli/config.json (chmod 600)
+intervals config verify                        # → {"ok":true,"athlete_id":"i12345","name":"..."}
 ```
 
 The athlete defaults to the key's owner. Coaches can target someone else with `--athlete i67890` or `INTERVALS_ATHLETE_ID`. Precedence: flag > env > config file. The `API_KEY`/`ATHLETE_ID` env vars used by intervals-mcp-server also work, so migration is a rename away.
